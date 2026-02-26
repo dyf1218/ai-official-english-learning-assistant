@@ -1,0 +1,79 @@
+<!-- Report Content Partial -->
+<div class="space-y-6">
+    <!-- Period Info -->
+    <div class="bg-white rounded-lg shadow p-6">
+        <div class="flex justify-between items-center">
+            <div>
+                <h2 class="text-lg font-medium text-gray-900">Report Period</h2>
+                <p class="text-sm text-gray-500">
+                    {{ report.period_start|date:"M j, Y" }} - {{ report.period_end|date:"M j, Y" }}
+                </p>
+            </div>
+            <div class="text-right">
+                <div class="text-3xl font-bold text-blue-600">{{ report.total_turns }}</div>
+                <div class="text-sm text-gray-500">Total Turns</div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Average Scores -->
+    {% if report.average_scores %}
+    <div class="bg-white rounded-lg shadow p-6">
+        <h2 class="text-lg font-medium text-gray-900 mb-4">Average Scores</h2>
+        <div class="grid grid-cols-2 sm:grid-cols-5 gap-4">
+            {% for dimension, score in report.average_scores.items %}
+            <div class="text-center">
+                <div class="text-2xl font-bold {% if score >= 4 %}text-green-600{% elif score >= 3 %}text-yellow-600{% else %}text-red-600{% endif %}">
+                    {{ score|floatformat:1 }}
+                </div>
+                <div class="text-xs text-gray-500 capitalize">{{ dimension }}</div>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+    {% endif %}
+    
+    <!-- Top Error Tags -->
+    {% if report.top_error_tags %}
+    <div class="bg-white rounded-lg shadow p-6">
+        <h2 class="text-lg font-medium text-gray-900 mb-4">Most Common Issues</h2>
+        <div class="space-y-3">
+            {% for error in report.top_error_tags %}
+            <div class="flex items-center justify-between">
+                <div class="flex items-center">
+                    <span class="px-3 py-1 rounded-full text-sm bg-red-100 text-red-800">
+                        {{ error.label }}
+                    </span>
+                </div>
+                <div class="text-sm text-gray-500">{{ error.count }} times</div>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+    {% endif %}
+    
+    <!-- Recommended Focus -->
+    {% if report.recommended_focus %}
+    <div class="bg-blue-50 rounded-lg p-6">
+        <h2 class="text-lg font-medium text-blue-900 mb-2">Recommended Focus</h2>
+        <p class="text-blue-800">{{ report.recommended_focus }}</p>
+    </div>
+    {% endif %}
+    
+    <!-- Quick Actions -->
+    <div class="flex gap-4">
+        <a href="{% url 'trainer:session_create' %}" 
+           class="flex-1 text-center py-3 px-4 rounded-md bg-blue-600 text-white font-medium hover:bg-blue-700 transition">
+            Start New Training
+        </a>
+        <a href="{% url 'kb:template_list' %}" 
+           class="flex-1 text-center py-3 px-4 rounded-md border border-gray-300 text-gray-700 font-medium hover:bg-gray-50 transition">
+            View Templates
+        </a>
+    </div>
+    
+    <!-- Generated timestamp -->
+    <div class="text-xs text-gray-400 text-center">
+        Report generated {{ report.created_at|timesince }} ago
+    </div>
+</div>

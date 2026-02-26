@@ -1,0 +1,123 @@
+{% extends "base.html" %}
+
+{% block title %}Account - SE English Trainer{% endblock %}
+
+{% block content %}
+<div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+    <h1 class="text-3xl font-bold text-gray-900 mb-8">Account Settings</h1>
+    
+    <div class="bg-white shadow rounded-lg divide-y divide-gray-200">
+        <!-- Profile Information -->
+        <div class="p-6">
+            <h2 class="text-lg font-medium text-gray-900 mb-4">Profile Information</h2>
+            <dl class="grid grid-cols-1 gap-x-4 gap-y-6 sm:grid-cols-2">
+                <div>
+                    <dt class="text-sm font-medium text-gray-500">Username</dt>
+                    <dd class="mt-1 text-sm text-gray-900">{{ user.username }}</dd>
+                </div>
+                <div>
+                    <dt class="text-sm font-medium text-gray-500">Email</dt>
+                    <dd class="mt-1 text-sm text-gray-900">{{ user.email }}</dd>
+                </div>
+                <div>
+                    <dt class="text-sm font-medium text-gray-500">Member Since</dt>
+                    <dd class="mt-1 text-sm text-gray-900">{{ user.date_joined|date:"F j, Y" }}</dd>
+                </div>
+            </dl>
+        </div>
+        
+        <!-- Plan Information -->
+        <div class="p-6">
+            <h2 class="text-lg font-medium text-gray-900 mb-4">Plan & Usage</h2>
+            <dl class="grid grid-cols-1 gap-x-4 gap-y-6 sm:grid-cols-2">
+                <div>
+                    <dt class="text-sm font-medium text-gray-500">Current Plan</dt>
+                    <dd class="mt-1">
+                        <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium 
+                            {% if profile.plan == 'pro' %}bg-purple-100 text-purple-800
+                            {% elif profile.plan == 'basic' %}bg-blue-100 text-blue-800
+                            {% else %}bg-gray-100 text-gray-800{% endif %}">
+                            {{ profile.get_plan_display }}
+                        </span>
+                    </dd>
+                </div>
+                <div>
+                    <dt class="text-sm font-medium text-gray-500">Plan Status</dt>
+                    <dd class="mt-1">
+                        <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium 
+                            {% if profile.plan_status == 'active' %}bg-green-100 text-green-800
+                            {% elif profile.plan_status == 'trial' %}bg-yellow-100 text-yellow-800
+                            {% else %}bg-red-100 text-red-800{% endif %}">
+                            {{ profile.get_plan_status_display }}
+                        </span>
+                    </dd>
+                </div>
+                <div>
+                    <dt class="text-sm font-medium text-gray-500">Monthly Turns Used</dt>
+                    <dd class="mt-1 text-sm text-gray-900">
+                        {{ profile.monthly_turn_used }} / {{ profile.monthly_turn_limit }}
+                    </dd>
+                </div>
+                <div>
+                    <dt class="text-sm font-medium text-gray-500">Turns Remaining</dt>
+                    <dd class="mt-1 text-sm text-gray-900">
+                        {{ profile.turns_remaining }}
+                    </dd>
+                </div>
+            </dl>
+            
+            <!-- Usage Progress Bar -->
+            <div class="mt-6">
+                <div class="flex justify-between text-sm text-gray-600 mb-1">
+                    <span>Usage this month</span>
+                    <span>{{ profile.monthly_turn_used }}/{{ profile.monthly_turn_limit }}</span>
+                </div>
+                <div class="w-full bg-gray-200 rounded-full h-2.5">
+                    {% widthratio profile.monthly_turn_used profile.monthly_turn_limit 100 as usage_percent %}
+                    <div class="h-2.5 rounded-full {% if usage_percent > 80 %}bg-red-500{% elif usage_percent > 50 %}bg-yellow-500{% else %}bg-blue-600{% endif %}" 
+                         style="width: {% widthratio profile.monthly_turn_used profile.monthly_turn_limit 100 %}%"></div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Quick Links -->
+        <div class="p-6">
+            <h2 class="text-lg font-medium text-gray-900 mb-4">Quick Links</h2>
+            <div class="flex flex-wrap gap-4">
+                <a href="{% url 'trainer:session_list' %}" 
+                   class="inline-flex items-center px-4 py-2 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 bg-white hover:bg-gray-50">
+                    <svg class="mr-2 h-5 w-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"></path>
+                    </svg>
+                    My Sessions
+                </a>
+                <a href="{% url 'kb:template_list' %}" 
+                   class="inline-flex items-center px-4 py-2 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 bg-white hover:bg-gray-50">
+                    <svg class="mr-2 h-5 w-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7v8a2 2 0 002 2h6M8 7V5a2 2 0 012-2h4.586a1 1 0 01.707.293l4.414 4.414a1 1 0 01.293.707V15a2 2 0 01-2 2h-2M8 7H6a2 2 0 00-2 2v10a2 2 0 002 2h8a2 2 0 002-2v-2"></path>
+                    </svg>
+                    My Templates
+                </a>
+                <a href="{% url 'reports:weekly_summary' %}" 
+                   class="inline-flex items-center px-4 py-2 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 bg-white hover:bg-gray-50">
+                    <svg class="mr-2 h-5 w-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"></path>
+                    </svg>
+                    Progress Report
+                </a>
+            </div>
+        </div>
+        
+        <!-- Logout -->
+        <div class="p-6">
+            <a href="{% url 'accounts:logout' %}" 
+               class="inline-flex items-center px-4 py-2 border border-red-300 rounded-md shadow-sm text-sm font-medium text-red-700 bg-white hover:bg-red-50">
+                <svg class="mr-2 h-5 w-5 text-red-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"></path>
+                </svg>
+                Logout
+            </a>
+        </div>
+    </div>
+</div>
+{% endblock %}

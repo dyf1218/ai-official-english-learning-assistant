@@ -1,0 +1,99 @@
+<!-- Feedback Panel Partial -->
+<div class="space-y-6">
+    <!-- Scores -->
+    <div class="bg-white rounded-lg shadow p-6">
+        <h3 class="text-lg font-medium text-gray-900 mb-4">Scores</h3>
+        <div class="grid grid-cols-2 sm:grid-cols-5 gap-4">
+            {% for dimension, score in turn.scores.items %}
+            <div class="text-center">
+                <div class="text-2xl font-bold {% if score >= 4 %}text-green-600{% elif score >= 3 %}text-yellow-600{% else %}text-red-600{% endif %}">
+                    {{ score }}/5
+                </div>
+                <div class="text-xs text-gray-500 capitalize">{{ dimension }}</div>
+            </div>
+            {% empty %}
+            <div class="col-span-5 text-sm text-gray-500">No scores available</div>
+            {% endfor %}
+        </div>
+    </div>
+    
+    <!-- Error Tags -->
+    {% if turn.error_tags %}
+    <div class="bg-white rounded-lg shadow p-6">
+        <h3 class="text-lg font-medium text-gray-900 mb-4">Areas to Improve</h3>
+        <div class="flex flex-wrap gap-2">
+            {% for tag in turn.error_tags %}
+            <span class="px-3 py-1 rounded-full text-sm bg-red-100 text-red-800">
+                {{ tag|title|replace:"_":" " }}
+            </span>
+            {% endfor %}
+        </div>
+    </div>
+    {% endif %}
+    
+    <!-- Rewrites -->
+    {% if turn.rewrites %}
+    <div class="bg-white rounded-lg shadow p-6">
+        <h3 class="text-lg font-medium text-gray-900 mb-4">Suggested Rewrites</h3>
+        <div class="space-y-4">
+            {% for rewrite in turn.rewrites %}
+            <div class="border-l-4 border-blue-500 pl-4">
+                <div class="text-sm text-gray-500 mb-2">Original:</div>
+                <div class="text-sm text-gray-700 bg-gray-50 p-2 rounded mb-3">{{ rewrite.original }}</div>
+                
+                <div class="text-sm text-gray-500 mb-2">Better:</div>
+                <div class="text-sm text-gray-900 bg-green-50 p-2 rounded mb-3">{{ rewrite.better }}</div>
+                
+                <div class="text-sm text-gray-500 mb-1">Why:</div>
+                <div class="text-sm text-gray-600">{{ rewrite.why }}</div>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+    {% endif %}
+    
+    <!-- Next Task -->
+    {% if turn.next_task %}
+    <div class="bg-blue-50 rounded-lg p-6">
+        <h3 class="text-lg font-medium text-blue-900 mb-2">Next Step</h3>
+        <p class="text-blue-800">{{ turn.next_task.text }}</p>
+    </div>
+    {% endif %}
+    
+    <!-- Templates to Save -->
+    {% if turn.templates_to_save %}
+    <div class="bg-white rounded-lg shadow p-6">
+        <h3 class="text-lg font-medium text-gray-900 mb-4">Save as Template</h3>
+        {% for template in turn.templates_to_save %}
+        <div class="border rounded-lg p-4 mb-3">
+            <div class="flex justify-between items-start mb-2">
+                <span class="font-medium text-gray-900">{{ template.title }}</span>
+                <form hx-post="{% url 'kb:template_save' %}"
+                      hx-swap="outerHTML"
+                      hx-target="this">
+                    {% csrf_token %}
+                    <input type="hidden" name="session_id" value="{{ session.id }}">
+                    <input type="hidden" name="turn_id" value="{{ turn.id }}">
+                    <input type="hidden" name="scenario" value="{{ session.scenario }}">
+                    <input type="hidden" name="title" value="{{ template.title }}">
+                    <input type="hidden" name="template_content" value="{{ template.content }}">
+                    <button type="submit" 
+                            class="text-sm text-blue-600 hover:text-blue-800 flex items-center">
+                        <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7H5a2 2 0 00-2 2v9a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2h-3m-1 4l-3 3m0 0l-3-3m3 3V4"></path>
+                        </svg>
+                        Save
+                    </button>
+                </form>
+            </div>
+            <div class="text-sm text-gray-600 bg-gray-50 p-2 rounded">{{ template.content }}</div>
+        </div>
+        {% endfor %}
+    </div>
+    {% endif %}
+    
+    <!-- Metadata -->
+    <div class="text-xs text-gray-400 text-right">
+        Turn {{ turn.turn_index }} • {{ turn.latency_ms }}ms • {{ turn.created_at|timesince }} ago
+    </div>
+</div>
